@@ -7,14 +7,27 @@ if (( $EUID != 0 )); then
 fi
 
 # Check if zenity is installed
-if [ $(dpkg-query -W -f='${Status}' zenity 2>/dev/null | grep -c "ok installed") -eq 0 ];
-then
-  apt-get install zenity;
+package1=zenity
+if pacman -Qs $package1 > /dev/null ; then
+  echo "The package $package1 is installed" > /dev/null
+else
+  pacman -S $package1;
 fi
 
+package2=curl
+if pacman -Qs $package2 > /dev/null ; then
+  echo "The package $package2 is installed" > /dev/null
+else
+  pacman -S $package2;
+fi
+
+# Install aur packages easily
+#curl https://raw.githubusercontent.com/apokatastasis/bash-scripts/master/instaur > aur.sh
+#chmod +x aur.sh
+
 # Install dependencies
-sudo apt-get update
-sudo apt-get install git-core gnupg flex bison gperf build-essential zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev \
+pacman -Syu
+pacman -S git-core gnupg flex bison gperf build-essential zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev \
                          x11proto-core-dev libx11-dev lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc unzip git python2.7 python-mako openjdk-8-jdk \
                          android-sdk-meta bc ccache imagemagick lib32readline-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libwxgtk3.0-dev \
                          libxml2  libxml2-utils  lzop  pngcrush rsync schedtool squashfs-tools xsltproc
