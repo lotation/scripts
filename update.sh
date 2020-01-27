@@ -1,2 +1,7 @@
 #!/bin/bash
-gnome-terminal --tab --title="ubuntu update" --command="bash -c 'sudo apt -y update; sudo apt -y upgrade; exit; $SHELL'"
+
+#gnome-terminal --tab --title="system update" --command="bash -c 'sudo pacman -Syu; exit; $SHELL'"
+
+konsole -e "sudo pacman -Syu; exit"
+
+#deepin-terminal -e "sudo pacman -Syu; exit"
