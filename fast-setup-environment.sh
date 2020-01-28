@@ -28,7 +28,7 @@ PATH=/home/$USERNAME/bin:$PATH
 curl https://storage.googleapis.com/git-repo-downloads/repo > /home/$USERNAME/bin/repo
 chmod a+x ~/bin/repo
 
-echo -e "\nalias s="repo sync -c --no-clone-bundle --current-branch -j$(nproc --all) --force-sync"\n" >> /home/$USERNAME/.bashrc
+echo -e "\nalias s="repo sync -c --no-clone-bundle --current-branch -j$(nproc --all) --force-sync"\n" >> /home/$USERNAME/.bash_aliases
 
 # Initialize android folder
 mkdir -p /home/$USERNAME/$DIR_NAME
