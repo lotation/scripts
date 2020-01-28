@@ -53,7 +53,7 @@ mkdir /home/$USERNAME/bin
 PATH=/home/$USERNAME/bin:$PATH
 curl https://storage.googleapis.com/git-repo-downloads/repo > /home/$USERNAME/bin/repo
 chmod a+x ~/bin/repo
-pacman -S repo
+pacman -S repo android-tools
 
 # Initialize android folder
 mkdir /home/$USERNAME/android
