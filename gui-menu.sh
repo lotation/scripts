@@ -1,6 +1,17 @@
 #!/bin/bash
-#Bash Menu Script Attempt 2 (GUI)
+# Bash Menu Script Attempt 2 (GUI)
 # personal use only!
+
+declare -a dependencies
+dependencies=(zenity whiptail clamav base-devel)
+for (( i = 0; i < ${#dependencies[@]}; i++ )); do
+  ${dependencies[i]}=package
+  if pacman -Qs $package > /dev/null ; then
+    echo "The package $package is installed" > /dev/null
+  else
+    pacman -S $package;
+  fi
+done
 
 SELECTION=$(whiptail --title "Menu " --menu "Choose an option" 25 78 16 \
     "1" "system update." \
@@ -25,20 +36,20 @@ case $SELECTION in
     2)
         echo "starting lineage sync"
         sleep 2
-        cd /mnt/PROVA/android/lineage
+        cd $HOME/android
         repo sync -c --no-clone-bundle --current-branch -j$(nproc --all) --force-sync
         ;;
     3)
         DEVICE=$(whiptail --inputbox "what device you want to compile android 15.1?" 8 78 Blue --title "Device Choice" 3>&1 1>&2 2>&3)
         echo "starting lineage 15.1 building for $DEVICE"
         sleep 2
-        cd /mnt/PROVA/android/lineage
+        cd $HOME/android
         source build/envsetup.sh
         breakfast ${DEVICE,,}
         export JAVA_HOME=/usr/lib/jvm/java-8-openjdk
         export PATH=/usr/lib/jvm/java-8-openjdk/jre/bin/:$PATH
         export USE_CCACHE=1
-        ccache -M 30G
+        ccache -M 50G
         export CCACHE_COMPRESS=1
         export ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4G"
         croot
@@ -49,7 +60,7 @@ case $SELECTION in
     4)
         echo "started mps-youtube" 
         sleep 1
-        /home/lotation/.scripts/mpsyt.sh
+        $HOME/.scripts/mpsyt.sh
         ;;
     5)
         echo "started malwares cleaning"
