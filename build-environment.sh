@@ -20,7 +20,7 @@ done
 
 
 # Install aur packages easily
-function aur_pkg() {
+function deps() {
 dir="/tmp/aur"
 if [ ! -d "$dir" ]; then
   mkdir $dir
@@ -46,6 +46,7 @@ for (( i = 0; i < ${#packages[@]}; i++ )); do
   echo -e "Package should be installed.\n"
 done
 }
+deps()
 
 # Install repo tool
 mkdir /home/$USERNAME/bin
