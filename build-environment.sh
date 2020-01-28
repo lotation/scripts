@@ -6,37 +6,53 @@ if (( $EUID != 0 )); then
     exit
 fi
 
-# Check if zenity is installed
-package1=zenity
-if pacman -Qs $package1 > /dev/null ; then
-  echo "The package $package1 is installed" > /dev/null
-else
-  pacman -S $package1;
-fi
+# Check if dependencies
+declare -a dependencies
+dependencies=(zenity curl base-devel)
+for (( i = 0; i < ${#dependencies[@]}; i++ )); do
+  ${dependencies[i]}=package
+  if pacman -Qs $package > /dev/null ; then
+    echo "The package $package is installed" > /dev/null
+  else
+    pacman -S $package;
+  fi
+done
 
-package2=curl
-if pacman -Qs $package2 > /dev/null ; then
-  echo "The package $package2 is installed" > /dev/null
-else
-  pacman -S $package2;
-fi
 
 # Install aur packages easily
-#curl https://raw.githubusercontent.com/apokatastasis/bash-scripts/master/instaur > aur.sh
-#chmod +x aur.sh
+function aur_pkg() {
+dir="/tmp/aur"
+if [ ! -d "$dir" ]; then
+  mkdir $dir
+fi
+cd $dir
 
-# Install dependencies
-pacman -Syu
-pacman -S git-core gnupg flex bison gperf build-essential zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev \
-                         x11proto-core-dev libx11-dev lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc unzip git python2.7 python-mako openjdk-8-jdk \
-                         android-sdk-meta bc ccache imagemagick lib32readline-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libwxgtk3.0-dev \
-                         libxml2  libxml2-utils  lzop  pngcrush rsync schedtool squashfs-tools xsltproc
+declare -a packages
+packages=(lib32-ncurses5-compat-libs ncurses5-compat-libs aosp-devel xml2 lineageos-devel)
+for (( i = 0; i < ${#packages[@]}; i++ )); do
+  ${packages[i]}=package_name
+  git clone https://aur.archlinux.org/package_name.git
+  cd package_name
+  less PKGBUILD
+  read  -n 1 -p "Are you sure you want to continue?(Yes/No)" "answer"
+  case answer in
+    Yes )
+      ;;
+    No )
+      nano PKGBUILD
+      ;;
+  esac
+  makepkg -sic
+  echo -e "Package should be installed.\n"
+done
+}
 
 # Install repo tool
 mkdir /home/$USERNAME/bin
 PATH=/home/$USERNAME/bin:$PATH
 curl https://storage.googleapis.com/git-repo-downloads/repo > /home/$USERNAME/bin/repo
 chmod a+x ~/bin/repo
+pacman -S repo
 
 # Initialize android folder
 mkdir /home/$USERNAME/android
