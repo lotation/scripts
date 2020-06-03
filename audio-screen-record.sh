@@ -2,12 +2,7 @@
 # FFmppeg Linux screen recorder
 #
 
-DIRECTORY="$HOME/Videos/recordings"
-if [ ! -d "$DIRECTORY" ]; then
-  mkdir $HOME/Videos/recordings
-fi
-
-cd $HOME/Videos/recordings
+cd /home/lotation/Video/recordings
 
 A="$(pacmd list-sources | grep -PB 1 "analog.*monitor>" | head -n 1 | perl -pe 's/.* //g')"
 F="$(date --iso-8601=minutes | perl -pe 's/[^0-9]+//g').mkv"
