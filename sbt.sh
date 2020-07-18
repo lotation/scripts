@@ -1,19 +1,21 @@
 #!/bin/bash
 clear
 
-#Check if running as root
+### BACKUP
+
+# Check if running as root
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
 fi
 
-#Check dependencies
+# Check dependencies
 if [[ ! -x /bin/rsync ]]; then
     echo "Install rsync first"
     exit
 fi
 
-#System backup
+# System backup
 echo -e "Starting home backup..."
 rsync -rha --progress /home/lotation/{.config,.local/share,.*rc,.bash_*,Music,Pictures,Documents,Videos,.scripts} /usr/local/backup
 
@@ -33,3 +35,18 @@ echo -e "\nroot backup..."
 # 
 # New idea:
 rsync -rha --progress --exclude /usr/local/backup /{bin,boot,efi,etc,opt,sys,usr,var} /usr/local/backup
+
+# Packages
+mkdir -pv /usr/local/backup/packages
+echo -e "packages backup..."
+
+if ! updates=$((checkupdates; yay -u 2>/dev/null) | wc -l); then
+	updates=0
+fi
+if $updates >= 1 ; then
+	echo $(pacman -Qentq) > /usr/local/backup/packages/pacman.bak
+	echo $(pacman -Qemtq) > /usr/local/backup/packages/yay.bak
+fi
+
+# Should have finished
+echo -e "Done."
