@@ -2,8 +2,8 @@
 clear
 
 # Check if running as root
-if [ "$EUID" -ne 0 ]
-  then echo "Please run as root"
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root"
   exit
 fi
 
@@ -20,6 +20,7 @@ if [[ ! -d $backup_dir ]]; then
     mkdir -pv $backup_dir
     mkdir -pv $backup_dir/home/lotation/
 fi
+
 
 ### BACKUP
 function backup {
@@ -90,6 +91,8 @@ echo -e "\nDone."
 
 }
 
+
+# Choices Menu
 echo -e "\n"
 PS3='What you wanna do?' 
 options=("Backup" "Restore" "Quit") 
