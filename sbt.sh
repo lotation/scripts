@@ -90,6 +90,30 @@ echo -e "\nDone."
 
 }
 
+echo -e "\n"
+PS3='What you wanna do?' 
+options=("Backup" "Restore" "Quit") 
+select opt in "${options[@]}" 
+do 
+    case $opt in 
+        "Backup")
+            backup 
+            ;; 
+            
+        "Restore")
+            restore 
+            ;; 
+            
+        "Quit")
+            break 
+            ;; 
+           
+        *) echo "invalid option $REPLY" ;; 
+    esac 
+done
+
+
+
 
 
 
