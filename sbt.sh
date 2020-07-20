@@ -17,9 +17,9 @@ fi
 backup_dir=/usr/local/backup
 
 if [[ ! -d $backup_dir ]]; then
-    mkdir -pv $backup_dir
+    mkdir -pv $backup_dir &> /dev/null
     if [[ ! -d $backup_dir/home/lotation ]]; then
-	    mkdir -pv $backup_dir/home/lotation/
+	    mkdir -pv $backup_dir/home/lotation/ &> /dev/null
     fi
 fi
 
@@ -36,7 +36,7 @@ echo -e "\nroot backup..."
 
 # Packages
 if [[ ! -d $backup_dir/packages ]]; then
-	mkdir -pv $backup_dir/packages
+	mkdir -pv $backup_dir/packages &> /dev/null
 fi
 
 echo -e "packages backup..."
