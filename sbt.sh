@@ -18,7 +18,9 @@ backup_dir=/usr/local/backup
 
 if [[ ! -d $backup_dir ]]; then
     mkdir -pv $backup_dir
-    mkdir -pv $backup_dir/home/lotation/
+    if [[ ! -d $backup_dir/home/lotation ]]; then
+	    mkdir -pv $backup_dir/home/lotation/
+    fi
 fi
 
 
@@ -27,19 +29,20 @@ function backup {
 
 # System backup
 echo -e "Starting home backup..."
-rsync -rha --progress /home/lotation/{.config,.local/share,.*rc,.bash_*,Music,Pictures,Documents,Videos,.scripts} $backup_dir/home
+ rsync -vrha --exclude /home/lotation/.local/share/Trash /home/lotation/{.config,.local/share,.*rc,.bash_*,Music,Pictures,Documents,Videos,.scripts} $backup_dir/home
 
 echo -e "\nroot backup..."
-rsync -rha --progress --exclude $backup_dir /{bin,boot,efi,etc,opt,sys,usr,var} $backup_dir
+ rsync -vrha --exclude $backup_dir /{bin,boot,efi,etc,opt,usr,var} $backup_dir
 
 # Packages
-mkdir -pv $backup_dir/packages
+if [[ ! -d $backup_dir/packages ]]; then
+	mkdir -pv $backup_dir/packages
+fi
+
 echo -e "packages backup..."
 
-if ! updates=$((checkupdates; yay -u 2>/dev/null) | wc -l); then
-	updates=0
-fi
-if $updates >= 1 ; then
+updates=$((checkupdates; yay -u 2>/dev/null) | wc -l)
+if [ $updates -gt 1 ]; then
 	echo $(pacman -Qentq) > $backup_dir/packages/pacman.bak
 	echo $(pacman -Qemtq) > $backup_dir/packages/yay.bak
 fi
@@ -58,19 +61,19 @@ pacman -Syu
 
 # Home restore
 echo -e "\nRestoring home..."
-rsync -a --progress --inplace --stats $backup_dir/home/lotation /home/lotation
+ rsync -va --inplace --stats $backup_dir/home/lotation /home/lotation
 
 # Root directories restore
 echo -e "\nrRestoring root directories"
-rsync -a --progress --inplace --stats $backup_dir/bin /bin
-rsync -a --progress --inplace --stats $backup_dir/boot /boot
-rsync -a --progress --inplace --stats $backup_dir/efi /efi
-rsync -a --progress --inplace --stats $backup_dir/etc /etc
+ rsync -va --inplace --stats $backup_dir/bin /bin
+ rsync -va --inplace --stats $backup_dir/boot /boot
+  rsync -va --inplace --stats $backup_dir/efi /efi
+ rsync -va --inplace --stats $backup_dir/etc /etc
 locale-gen
-rsync -a --progress --inplace --stats $backup_dir/opt /opt
-rsync -a --progress --inplace --stats $backup_dir/sys /sys
-rsync -a --progress --inplace --stats $backup_dir/usr /usr
-rsync -a --progress --inplace --stats $backup_dir/var /var
+ rsync -va --inplace --stats $backup_dir/opt /opt
+ rsync -va --inplace --stats $backup_dir/sys /sys
+ rsync -va --inplace --stats $backup_dir/usr /usr
+ rsync -va --inplace --stats $backup_dir/var /var
 
 # Packages restore
 echo -e "\nRestoring packages"
@@ -91,10 +94,9 @@ echo -e "\nDone."
 
 }
 
-
 ### CHOICES MENU
-echo -e "\n"
-PS3='What you wanna do?' 
+echo -e "MENU\n-------------------------"
+PS3='What you wanna do? ' 
 options=("Backup" "Restore" "Quit") 
 select opt in "${options[@]}" 
 do 
@@ -114,3 +116,4 @@ do
         *) echo "invalid option $REPLY" ;; 
     esac 
 done
+
