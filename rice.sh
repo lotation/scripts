@@ -13,7 +13,7 @@ for name in git
 do
  	[[ $(which $name 2>/dev/null) ]] || { echo -en "\n$name needs to be installed.";deps=1; }
 done
-[[ $deps -ne 1 ]] && echo "OK" || { echo -en "\nInstall the above and rerun this script\n";exit 1; }
+[[ $deps -ne 1 ]] && echo "OK" || { echo -en "\nInstall $name and rerun this script\n";exit 1; }
 
 install() {
         echo -e "\nInstalling $1:"
