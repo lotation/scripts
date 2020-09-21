@@ -16,61 +16,65 @@ done
 [[ $deps -ne 1 ]] && echo "OK" || { echo -en "\nInstall $name and rerun this script\n";exit 1; }
 
 install() {
-        echo -e "\nInstalling $1:"
-        pacman -S $1 --noconfirm 1>/dev/null 2>errors.log
+        echo -e "\nInstalling ${1}:"
+        pacman -S ${1} --noconfirm 1>/dev/null 2>errors.log
         echo -e "[Done.]"
 }
 
 aur_install() {
-	echo -e "\nInstalling $1:"
-	mkdir ./temp-build && cd ./temp-build
-	git clone https://aur.archlinux.org/$1.git 1>/dev/null 2>>errors.log
-	cd $1
+	echo -e "\nInstalling ${1}:"
+	dir=./tempbuild
+	if [[ ! -e $dir ]]; then
+    		mkdir $dir
+	fi
+	cd $dir
+	git clone https://aur.archlinux.org/${1}.git 1>/dev/null 2>>errors.log
+	cd ${1}
 	makepkg -sirc --noconfirm --noprogressbar 1>/dev/null 2>>errors.log
 	cd ..
-	rm -rf $1
+	rm -rf ${1}
 	echo -e "[Done.]"
 }
 
-pkgs = (        bspwm \
-                sxhkd \
-		rofi \
-		rxvt-unicode \
-		zsh \
-		vim \
-		slim \
-		feh \
-		python \
-		python-gobject \
-		python-pillow \
-		python-pywal \
-		xsettingsd \
-		gtk-engine-murrine \
-		dunst \
-		ranger \
-
-        )
+pkgs=(        
+		"bspwm"
+        	"sxhkd" 
+		"rofi"
+		"rxvt-unicode"
+		"zsh"
+		"vim"
+		"slim"
+		"feh"
+		"python"
+		"python-gobject"
+		"python-pillow"
+		"python-pywal"
+		"xsettingsd"
+		"gtk-engine-murrine"
+		"dunst"
+		"ranger"
+	)
 
 # Installing packages
 for i in ${#pkgs[@]}
 do
-        install pkgs[$i]
+        install ${pkgs[$i]}
 done
 
-aur_pkgs = (    polybar \
-                rofi \
-                spotify \
-		spicetify-cli \
-		nerd-fonts-complete \
-		wpgtk-git \
-
+aur_pkgs=(    
+		"polybar"
+        	"rofi"
+        	"spotify"
+		"spicetify-cli"
+		"nerd-fonts-complete"
+		"wpgtk-git"
         )
 
 # Installing AUR packages:
 for j in ${#aur_pkgs[@]}
 do
-	aur_install aur_pkgs[$j]
-	if [ aur_pkgs[$j] = "spotify" ]; then
+	aur_install ${aur_pkgs[$j]}
+	if [ ${aur_pkgs[$j]} == "spotify" ]; then
 		chmod a+wr /opt/spotify
 		chmod a+wr /opt/spotify/Apps -R
 	fi
@@ -106,7 +110,7 @@ systemctl start slim.service
 # Getting hands dirty
 git clone --depth=1 https://github.com/VaughnValle/elektropunk.git 1>/dev/null 2>errors.log
 cd elektropunk
-cp ./* /home/lotation/.config/
+cp -r ./* /home/lotation/.config/
 mv /home/lotation/.config/.Xresources /home/lotation/
 mv /home/lotation/.config/.vimrc /home/lotation/
 
