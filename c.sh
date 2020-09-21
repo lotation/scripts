@@ -13,7 +13,7 @@ case "$response" in
 		;;
 	*)
 		clear
-		gcc $FILE -o /tmp/temp -lm
+		gcc $FILE -o /tmp/temp
 esac
 
 /tmp/temp
