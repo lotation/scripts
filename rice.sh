@@ -53,6 +53,7 @@ pkgs=(
 		"gtk-engine-murrine"
 		"dunst"
 		"ranger"
+		"youtube-dl"
 	)
 
 # Installing packages
