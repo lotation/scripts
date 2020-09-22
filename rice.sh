@@ -56,9 +56,10 @@ pkgs=(
 	)
 
 # Installing packages
-for i in ${#pkgs[@]}
+for ((i = 0 ; i < "${#pkgs[@]}" ; i++))
 do
-        install ${pkgs[$i]}
+        echo -e "\nPackage number ${i}"
+	install "${pkgs[${i}]}"
 done
 
 aur_pkgs=(    
@@ -71,10 +72,10 @@ aur_pkgs=(
         )
 
 # Installing AUR packages:
-for j in ${#aur_pkgs[@]}
+for ((j = 0 ; j < "${#aur_pkgs[@]}" ; j++))
 do
-	aur_install ${aur_pkgs[$j]}
-	if [ ${aur_pkgs[$j]} == "spotify" ]; then
+	aur_install "${aur_pkgs[${j}]}"
+	if [ "${aur_pkgs[$j]}" == "spotify" ]; then
 		chmod a+wr /opt/spotify
 		chmod a+wr /opt/spotify/Apps -R
 	fi
