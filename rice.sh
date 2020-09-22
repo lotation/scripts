@@ -18,7 +18,7 @@ done
 install() {
         echo -e "\nInstalling ${1}:"
         pacman -S ${1} --noconfirm 1>/dev/null 2>errors.log
-        echo -e "[Done.]"
+        echo -e "Done."
 }
 
 aur_install() {
@@ -33,7 +33,7 @@ aur_install() {
 	makepkg -sirc --noconfirm --noprogressbar 1>/dev/null 2>>errors.log
 	cd ..
 	rm -rf ${1}
-	echo -e "[Done.]"
+	echo -e "Done."
 }
 
 pkgs=(        
