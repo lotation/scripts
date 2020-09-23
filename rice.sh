@@ -1,19 +1,42 @@
 #!/bin/bash
 
+# Useless script to rice your desktop
+
+VERSION="v0.1"
+
 clear
 
 if [ "$EUID" -ne 0 ]; then
-        echo -e "\nPlease run as root."
+        echo -e \
+        "\n\n\n" \
+        "-------------------------------------------------" \
+        "\n" \
+        "|              Please run as root.              |" \
+        "\n" \
+        "-------------------------------------------------" \
+        "\n";
         exit
 fi
 
-# Dependencies check
-#echo -e "Checking dependencies... "
-#for name in base-devel git curl wget
-#do
-# 	[[ $(which $name 2>/dev/null) ]] || { echo -en "\n$name needs to be installed.";deps=1; }
-#done
-#[[ $deps -ne 1 ]] && echo "OK" || { echo -en "\nInstall $name and rerun this script\n";exit 1; }
+if ! command -v tput &> /dev/null ; then
+	:
+else
+	BOLD=$(tput bold)
+        RESET=$(tput sgr0)
+        #FG_SKYBLUE=$(tput setaf 122)
+	PURPLE=$(tput setaf 016)
+fi
+
+#greeting() {
+        printf "${PURPLE}%s\n" ""
+	printf "%s\n" "██████╗ ██╗ ██████╗███████╗"
+	printf "%s\n" "██╔══██╗██║██╔════╝██╔════╝"
+	printf "%s\n" "██████╔╝██║██║     █████╗  "
+	printf "%s\n" "██╔══██╗██║██║     ██╔══╝  "
+	printf "%s\n" "██║  ██║██║╚██████╗███████╗"
+	printf "%s\n" "╚═╝  ╚═╝╚═╝ ╚═════╝╚══════╝"
+	printf "${RESET}\n%s" ""
+#}
 
 deps_check() {
 	if command -v ${1} >/dev/null 2>&1 ; then
@@ -26,7 +49,7 @@ deps_check() {
 }
 
 install() {
-        echo -e "\nInstalling ${1}:"
+        echo -e "Installing ${1}:"
         pacman -S ${1} --noconfirm 1>/dev/null 2>>errors.log
         echo -e "Done."
 }
