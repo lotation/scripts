@@ -33,11 +33,6 @@ install() {
 
 aur_install() {
 	echo -e "\nInstalling ${1}:"
-	dir=./tempbuild
-	if [[ ! -e $dir ]]; then
-    		sudo -u lotation mkdir $dir
-	fi
-	cd $dir
 	sudo -u lotation git clone https://aur.archlinux.org/${1}.git 1>/dev/null 2>>errors.log
 	cd ${1}
 	sudo -u lotation makepkg -sirc --noconfirm --noprogressbar 1>/dev/null 2>>errors.log
@@ -86,7 +81,7 @@ aur_pkgs=(
 echo -e "\nChecking depedencies..."
 for ((k = 0 ; k < "${#deps[@]}" ; k++))
 do
-	deps_check "${pkgs[${k}]}"
+	deps_check "${deps[${k}]}"
 done
 
 # Installing packages
@@ -96,7 +91,15 @@ do
 	install "${pkgs[${i}]}"
 done
 
+# Import spotify GPG key
+sudo -u lotation curl -sS https://download.spotify.com/debian/pubkey.gpg | gpg --import - 1>/dev/null 2>>errors.log
+
 # Installing AUR packages:
+dir=./tempbuild
+if [[ ! -e $dir ]]; then
+    	sudo -u lotation mkdir $dir
+fi
+cd $dir
 for ((j = 0 ; j < "${#aur_pkgs[@]}" ; j++))
 do
 	aur_install "${aur_pkgs[${j}]}"
@@ -105,6 +108,8 @@ do
 		chmod a+wr /opt/spotify/Apps -R
 	fi
 done
+cd ..
+rm -rf $dir
 
 # Installing oh-my-zsh!
 sudo -u lotation curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh 1>/dev/null 2>>errors.log
