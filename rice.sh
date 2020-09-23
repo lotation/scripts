@@ -22,6 +22,7 @@ deps_check() {
 		echo "${1} not found, installing"
 		pacman -S ${1} --noconfirm 1>/dev/null 2>>errors.log
 		echo "Finished."
+	fi
 }
 
 install() {
