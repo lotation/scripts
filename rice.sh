@@ -8,12 +8,12 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Dependencies check
-echo -e "Checking dependencies... "
-for name in base-devel git curl wget
-do
- 	[[ $(which $name 2>/dev/null) ]] || { echo -en "\n$name needs to be installed.";deps=1; }
-done
-[[ $deps -ne 1 ]] && echo "OK" || { echo -en "\nInstall $name and rerun this script\n";exit 1; }
+#echo -e "Checking dependencies... "
+#for name in base-devel git curl wget
+#do
+# 	[[ $(which $name 2>/dev/null) ]] || { echo -en "\n$name needs to be installed.";deps=1; }
+#done
+#[[ $deps -ne 1 ]] && echo "OK" || { echo -en "\nInstall $name and rerun this script\n";exit 1; }
 
 deps_check() {
 	if command -v ${1} >/dev/null 2>&1 ; then
@@ -82,6 +82,7 @@ aur_pkgs=(
         )
 
 # Checking dependencies
+echo -e "\nChecking depedencies..."
 for ((k = 0 ; k < "${#deps[@]}" ; k++))
 do
 	deps_check "${pkgs[${k}]}"
