@@ -15,6 +15,15 @@ do
 done
 [[ $deps -ne 1 ]] && echo "OK" || { echo -en "\nInstall $name and rerun this script\n";exit 1; }
 
+deps_check() {
+	if command -v ${1} >/dev/null 2>&1 ; then
+		echo "${1} found!"
+	else
+		echo "${1} not found, installing"
+		pacman -S ${1} --noconfirm 1>/dev/null 2>>errors.log
+		echo "Finished."
+}
+
 install() {
         echo -e "\nInstalling ${1}:"
         pacman -S ${1} --noconfirm 1>/dev/null 2>>errors.log
@@ -36,6 +45,13 @@ aur_install() {
 	echo -e "Done."
 }
 
+deps=(    
+        	"base-devel"
+		"git"
+		"curl"
+		"wget"
+        )
+
 pkgs=(        
 		"bspwm"
         	"sxhkd" 
@@ -56,13 +72,6 @@ pkgs=(
 		"youtube-dl"
 	)
 
-# Installing packages
-for ((i = 0 ; i < "${#pkgs[@]}" ; i++))
-do
-        echo -e "\nPackage number ${i}"
-	install "${pkgs[${i}]}"
-done
-
 aur_pkgs=(    
 		"polybar"
         	"rofi"
@@ -71,6 +80,19 @@ aur_pkgs=(
 		"nerd-fonts-complete"
 		"wpgtk-git"
         )
+
+# Checking dependencies
+for ((k = 0 ; k < "${#deps[@]}" ; k++))
+do
+	deps_check "${pkgs[${k}]}"
+done
+
+# Installing packages
+for ((i = 0 ; i < "${#pkgs[@]}" ; i++))
+do
+        echo -e "\nPackage number ${i}"
+	install "${pkgs[${i}]}"
+done
 
 # Installing AUR packages:
 for ((j = 0 ; j < "${#aur_pkgs[@]}" ; j++))
