@@ -18,22 +18,47 @@ if [ "$EUID" -ne 0 ]; then
         exit
 fi
 
+
+
+greeting() {
+	
+	printf "${PURPLE}%s\n" ""
+	printf "\n"		"									"
+	printf "%s\n"		"-----------------------------------------------------------------------"
+	printf "\n"		"|								       |"	
+	printf "%s\n" 		"|	██████╗ ██╗ ██████╗███████╗				       |"
+	printf "%s\n"		"|	██╔══██╗██║██╔════╝██╔════╝				       |"
+	printf "%s\n" 	 	"|	██████╔╝██║██║     █████╗  				       |"
+	printf "%s\n" 	 	"|	██╔══██╗██║██║     ██╔══╝  				       |"
+	printf "%s\n" 	 	"|	██║  ██║██║╚██████╗███████╗				       |"
+	printf "%s,%s\n" 	"|	╚═╝  ╚═╝╚═╝ ╚═════╝╚══════╝		     ${VERSION}	       |"
+	printf "\n"		"|								       |"
+	printf "%s\n"		"-----------------------------------------------------------------------"
+	printf "\n"		"									"
+	printf "${RESET}\n%s" ""
+
+}
+
 if ! command -v tput &> /dev/null ; then
 	:
 else
-        RESET=$(tput sgr0)
+	RESET=$(tput sgr0)
 	PURPLE=$(tput setaf 127)
+	greeting
 fi
 
-        printf "${PURPLE}%s\n" ""
-	printf "%s\n" "██████╗ ██╗ ██████╗███████╗"
-	printf "%s\n" "██╔══██╗██║██╔════╝██╔════╝"
-	printf "%s\n" "██████╔╝██║██║     █████╗  "
-	printf "%s\n" "██╔══██╗██║██║     ██╔══╝  "
-	printf "%s\n" "██║  ██║██║╚██████╗███████╗"
-	printf "%s\n" "╚═╝  ╚═╝╚═╝ ╚═════╝╚══════╝"
-	printf "${RESET}\n%s" ""
 
+
+# Ask username
+echo -e "\n"
+read -p "Write username: " -r USERNAME
+
+
+
+# Redirect output
+red() {
+	return ${1} 1>/dev/null 2>>/home/$USERNAME/errors.log
+}
 
 deps_check() {
 	if command -v ${1} >/dev/null 2>&1 ; then
@@ -107,7 +132,7 @@ done
 # Installing packages
 for ((i = 0 ; i < "${#pkgs[@]}" ; i++))
 do
-        echo -e "\nPackage number ${i}"
+        #echo -e "\nPackage number ${i}"
 	install "${pkgs[${i}]}"
 done
 
@@ -131,17 +156,20 @@ done
 cd ..
 rm -rf $dir
 
-# Installing oh-my-zsh!
-sudo -u lotation curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh 1>/dev/null 2>>errors.log
 
-# Installing spicetify Dribbblish theme
+echo -e "\nInstalling oh-my-zsh!"
+sudo -u lotation curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh 1>/dev/null 2>>errors.log
+echo "Done."
+
+echo -e "\nInstalling spicetify Dribbblish theme"
 cd "$(dirname "$(spicetify -c)")/Themes/Dribbblish"
 sudo -u lotation cp dribbblish.js ../../Extensions
 spicetify config extensions dribbblish.js
 spicetify config current_theme Dribbblish color_scheme base
 spicetify config inject_css 1 replace_colors 1 overwrite_assets 1
 spicetify config color_scheme purple
-spicetify apply
+spicetify apply 1>/dev/null
+echo "Done."
 
 # powerlevel10k zsh theme installation
 sudo -u lotation git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/lotation/powerlevel10k 1>/dev/null 2>>errors.log
