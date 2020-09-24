@@ -14,20 +14,17 @@ if [ "$EUID" -ne 0 ]; then
         "|              Please run as root.              |" \
         "\n" \
         "-------------------------------------------------" \
-        "\n";
+        "\n\n\n";
         exit
 fi
 
 if ! command -v tput &> /dev/null ; then
 	:
 else
-	BOLD=$(tput bold)
         RESET=$(tput sgr0)
-        #FG_SKYBLUE=$(tput setaf 122)
-	PURPLE=$(tput setaf 016)
+	PURPLE=$(tput setaf 127)
 fi
 
-#greeting() {
         printf "${PURPLE}%s\n" ""
 	printf "%s\n" "██████╗ ██╗ ██████╗███████╗"
 	printf "%s\n" "██╔══██╗██║██╔════╝██╔════╝"
@@ -36,7 +33,7 @@ fi
 	printf "%s\n" "██║  ██║██║╚██████╗███████╗"
 	printf "%s\n" "╚═╝  ╚═╝╚═╝ ╚═════╝╚══════╝"
 	printf "${RESET}\n%s" ""
-#}
+
 
 deps_check() {
 	if command -v ${1} >/dev/null 2>&1 ; then
