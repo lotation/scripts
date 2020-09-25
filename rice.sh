@@ -95,7 +95,7 @@ dribbblish_install() {
 	spicetify config extensions dribbblish.js
 	spicetify config current_theme Dribbblish color_scheme base
 	spicetify config inject_css 1 replace_colors 1 overwrite_assets
-	spicetify apply
+	spicetify backup apply
 	rm -rf /tmp/foo
 } 1>/dev/null 2>>/home/$USERNAME/errors.log
 
