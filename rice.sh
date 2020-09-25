@@ -20,19 +20,25 @@ fi
 
 
 
+# Ask username
+read -p "Write username: " -r USERNAME
+clear
+
+
+
 greeting() {
 	
 	printf "${PURPLE}%s\n" ""
 	printf "\n"		"									"
 	printf "%s\n"		"-----------------------------------------------------------------------"
-	printf "\n"		"|								       |"	
+	printf "%s\n"		"|								       |"	
 	printf "%s\n" 		"|	██████╗ ██╗ ██████╗███████╗				       |"
 	printf "%s\n"		"|	██╔══██╗██║██╔════╝██╔════╝				       |"
 	printf "%s\n" 	 	"|	██████╔╝██║██║     █████╗  				       |"
 	printf "%s\n" 	 	"|	██╔══██╗██║██║     ██╔══╝  				       |"
 	printf "%s\n" 	 	"|	██║  ██║██║╚██████╗███████╗				       |"
 	printf "%s,%s\n" 	"|	╚═╝  ╚═╝╚═╝ ╚═════╝╚══════╝		     ${VERSION}	       |"
-	printf "\n"		"|								       |"
+	printf "%s\n"		"|								       |"
 	printf "%s\n"		"-----------------------------------------------------------------------"
 	printf "\n"		"									"
 	printf "${RESET}\n%s" ""
@@ -49,42 +55,49 @@ fi
 
 
 
-# Ask username
-echo -e "\n"
-read -p "Write username: " -r USERNAME
-
-
-
-# Redirect output
-red() {
-	return ${1} 1>/dev/null 2>>/home/$USERNAME/errors.log
-}
-
 deps_check() {
-	if command -v ${1} >/dev/null 2>&1 ; then
-		echo "${1} found!"
+	if pacman -Qi ${1} >/dev/null 2>&1 ; then
+		echo "\n${1} found!"
 	else
-		echo "${1} not found, installing"
-		pacman -S ${1} --noconfirm 1>/dev/null 2>>errors.log
+		echo "\n${1} not found, installing"
+		pacman -S ${1} --noconfirm 1>/dev/null 2>>/home/$USERNAME/errors.log
 		echo "Finished."
 	fi
 }
 
 install() {
-        echo -e "Installing ${1}:"
-        pacman -S ${1} --noconfirm 1>/dev/null 2>>errors.log
+        echo -e "\nInstalling ${1}:"
+        pacman -S ${1} --noconfirm 1>/dev/null 2>>/home/$USERNAME/errors.log
         echo -e "Done."
 }
 
 aur_install() {
 	echo -e "\nInstalling ${1}:"
-	sudo -u lotation git clone https://aur.archlinux.org/${1}.git 1>/dev/null 2>>errors.log
+	sudo -u $USERNAME git clone https://aur.archlinux.org/${1}.git 1>/dev/null 2>>/home/$USERNAME/errors.log
 	cd ${1}
-	sudo -u lotation makepkg -sirc --noconfirm --noprogressbar 1>/dev/null 2>>errors.log
+	sudo -u $USERNAME makepkg -sirc --noconfirm --noprogressbar 1>/dev/null 2>>/home/$USERNAME/errors.log
 	cd ..
 	rm -rf ${1}
 	echo -e "Done."
 }
+
+dribbblish_install() {
+	if ! pacman -Qi spicetify-themes-git >/dev/null 2>&1 ; then
+		exit
+	fi
+	# Workaround to get Dribbblish folder only
+	cd /tmp && mkdir foo && cd foo
+	sudo -u $USERNAME git clone https://github.com/morpheusthewhite/spicetify-themes.git
+	cd spicetify-themes
+	sudo -u $USERNAME cp -r Dribbblish/ "$(dirname "$(spicetify -c)")/Themes/"
+	cd "$(dirname "$(spicetify -c)")/Themes/Dribbblish" 
+	sudo -u $USERNAME cp dribbblish.js ../../Extensions 
+	spicetify config extensions dribbblish.js
+	spicetify config current_theme Dribbblish color_scheme base
+	spicetify config inject_css 1 replace_colors 1 overwrite_assets
+	spicetify apply
+	rm -rf /tmp/foo
+} 1>/dev/null 2>>/home/$USERNAME/errors.log
 
 deps=(    
         	"base-devel"
@@ -120,6 +133,7 @@ aur_pkgs=(
 		"spicetify-cli"
 		"nerd-fonts-complete"
 		"wpgtk-git"
+		"spicetify-themes-git"
         )
 
 # Checking dependencies
@@ -137,12 +151,12 @@ do
 done
 
 # Import spotify GPG key
-sudo -u lotation curl -sS https://download.spotify.com/debian/pubkey.gpg | gpg --import - 1>/dev/null 2>>errors.log
+sudo -u $USERNAME curl -sS https://download.spotify.com/debian/pubkey.gpg | gpg --import - 1>/dev/null 2>>/home/$USERNAME/errors.log
 
 # Installing AUR packages:
-dir=./tempbuild
+dir=/home/$USERNAME/tempbuild
 if [[ ! -e $dir ]]; then
-    	sudo -u lotation mkdir $dir
+    	sudo -u $USERNAME mkdir $dir
 fi
 cd $dir
 for ((j = 0 ; j < "${#aur_pkgs[@]}" ; j++))
@@ -157,41 +171,40 @@ cd ..
 rm -rf $dir
 
 
+
 echo -e "\nInstalling oh-my-zsh!"
-sudo -u lotation curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh 1>/dev/null 2>>errors.log
+sudo -u $USERNAME curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh 1>/dev/null 2>>/home/$USERNAME/errors.log
 echo "Done."
 
 echo -e "\nInstalling spicetify Dribbblish theme"
-cd "$(dirname "$(spicetify -c)")/Themes/Dribbblish"
-sudo -u lotation cp dribbblish.js ../../Extensions
-spicetify config extensions dribbblish.js
-spicetify config current_theme Dribbblish color_scheme base
-spicetify config inject_css 1 replace_colors 1 overwrite_assets 1
-spicetify config color_scheme purple
-spicetify apply 1>/dev/null
+dribbblish_install
 echo "Done."
 
-# powerlevel10k zsh theme installation
-sudo -u lotation git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/lotation/powerlevel10k 1>/dev/null 2>>errors.log
-echo 'source /home/lotation/powerlevel10k/powerlevel10k.zsh-theme' >>! /home/lotation/.zshrc
-# font install:
-wget -P /home/lotation/.local/share/fonts -q https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf
-wget -P /home/lotation/.local/share/fonts -q https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf
-wget -P /home/lotation/.local/share/fonts -q https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf
-wget -P /home/lotation/.local/share/fonts -q https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf
+echo -e "\nInstalling powerlevel10k theme..."
+sudo -u $USERNAME git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/$USERNAME/powerlevel10k 1>/dev/null 2>>/home/$USERNAME/errors.log
+echo "source /home/$USERNAME/powerlevel10k/powerlevel10k.zsh-theme" >>! /home/$USERNAME/.zshrc
+echo -e "\nInstalling theme fonts..."
+wget -P /home/$USERNAME/.local/share/fonts -q https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Regular.ttf 1>/dev/null 2>>/home/$USERNAME/errors.log
+wget -P /home/$USERNAME/.local/share/fonts -q https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold.ttf 1>/dev/null 2>>/home/$USERNAME/errors.log
+wget -P /home/$USERNAME/.local/share/fonts -q https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Italic.ttf 1>/dev/null 2>>/home/$USERNAME/errors.log
+wget -P /home/$USERNAME/.local/share/fonts -q https://github.com/romkatv/powerlevel10k-media/raw/master/MesloLGS%20NF%20Bold%20Italic.ttf 1>/dev/null 2>>/home/$USERNAME/errors.log
+echo "Done."
 
-# Setting up Simple LogIn Manager
-systemctl enable slim.service
-systemctl start slim.service
-
-
+echo -e "\nSetting slim as login manager..."
+systemctl enable slim.service 1>/dev/null 2>>/home/$USERNAME/errors.log
+systemctl start slim.service 1>/dev/null 2>>/home/$USERNAME/errors.log
+echo "Done."
 
 # Getting hands dirty
-sudo -u lotation git clone --depth=1 https://github.com/VaughnValle/elektropunk.git 1>/dev/null 2>>errors.log
+echo -e "\nGetting elektropunk dotfiles..."
+sudo -u $USERNAME git clone https://github.com/VaughnValle/elektropunk.git 1>/dev/null 2>>/home/$USERNAME/errors.log
 cd elektropunk
-sudo -u lotation cp -r ./* /home/lotation/.config/
-sudo -u lotation mv /home/lotation/.config/.Xresources /home/lotation/
-sudo -u lotation mv /home/lotation/.config/.vimrc /home/lotation/
+sudo -u $USERNAME cp -r ./* /home/$USERNAME/.config/
+#sudo -u $USERNAME mv /home/$USERNAME/.config/.Xresources /home/$USERNAME/
+#sudo -u $USERNAME mv /home/$USERNAME/.config/.vimrc /home/$USERNAME/
+cd ..
+rm -rf elektropunk
+echo "Done."
 
 
 
