@@ -129,7 +129,7 @@ aur_pkgs=(
         	"rofi"
         	"spotify"
 		"spicetify-cli"
-#		"nerd-fonts-complete"
+		"nerd-fonts-complete"
 		"wpgtk-git"
 		"spicetify-themes-git"
         )
