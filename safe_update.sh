@@ -21,12 +21,19 @@ fi
 
 # System backup
 echo -e "Starting home backup..."
+<<<<<<< HEAD
  rsync -vrha --exclude /home/lotation/.local/share/Trash /home/lotation/{.config,.local/share,.*rc,.bash_*,Music,Pictures,Documents,Videos,.scripts} $backup_dir/home &> /dev/null
 echo "Done."
 
 echo -e "\nroot backup..."
  rsync -vrha --exclude $backup_dir /{bin,boot,efi,etc,opt,usr,var} $backup_dir &> /dev/null
 echo "Done."
+=======
+ rsync -vrha --exclude /home/lotation/.local/share/Trash /home/lotation/{.config,.local/share,.*rc,.bash_*,Music,Pictures,Documents,Videos,.scripts} $backup_dir/home
+
+echo -e "\nroot backup..."
+ rsync -vrha --exclude $backup_dir /{bin,boot,efi,etc,opt,usr,var} $backup_dir
+>>>>>>> bbcc7771341c2968d532085dc2d3d9b9e62be5c1
 
 # Packages
 if [[ ! -d $backup_dir/packages ]]; then

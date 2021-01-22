@@ -164,7 +164,11 @@ for ((j = 0 ; j < "${#aur_pkgs[@]}" ; j++))
 do
 	aur_install "${aur_pkgs[${j}]}"
 	if [ "${aur_pkgs[$j]}" == "spotify" ]; then
+<<<<<<< HEAD
 		yay -S spotify --noconfirm --noprogressbar --skippgpcheck 1>/dev/null 2>>~/errors.log
+=======
+		yay -S spotify --noconfirm --noprogressbar --nopgpfetch 1>/dev/null 2>>~/errors.log
+>>>>>>> bbcc7771341c2968d532085dc2d3d9b9e62be5c1
 		sudo chmod a+wr /opt/spotify 1>/dev/null 2>>~/errors.log
 		sudo chmod a+wr /opt/spotify/Apps -R 1>/dev/null 2>>~/errors.log
 	fi
