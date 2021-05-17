@@ -1,8 +1,9 @@
 #!/bin/bash
 
-for pkg in $(paru -Qdtq)
-do
-	paru -R "$pkg"
-done
+if [ "$EUID" -ne 0 ]
+then echo "Please run as root"
+  exit
+fi
 
-exit 0
+pacman -Qtdq | pacman -Rns -
+
