@@ -47,7 +47,7 @@ sysinfo() {
 	printf "\n"
     printf "%s\n" "${COLOR}FS Usage${RESET}:     /             [$(usageof root)]"
 	printf "%s\n" "              /home         [$(usageof home)]"
-	printf "%s\n" "              MacOS         [$(usageof macos)]"
+	printf "%s\n" "              /media/DATA   [$(usageof data)]"
 	printf "\n"
 
 }
@@ -68,8 +68,8 @@ fsmatch() {
         home)
             echo "/dev/sdb4"
             ;;
-        macos)
-            echo "/dev/sdb2"
+        data)
+            echo "/dev/sdb1"
             ;;
     esac
 }
@@ -79,4 +79,3 @@ greeting
 sysinfo
 goodbye
 
-exit 0
