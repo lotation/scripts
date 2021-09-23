@@ -1,0 +1,14 @@
+#!/bin/bash
+
+reps=20
+tottime=0
+
+for i in $(seq 1 $reps)
+do
+  time=$( (/usr/bin/time -f %e $1 > /dev/null) 2>&1 )
+  tottime=$(echo $time + $tottime | bc -l)
+  #echo -e "$i) time=$time   total_time=$tottime \n\n"
+done 
+
+tottime=$(echo "scale=4; $tottime / $reps" | bc -l)
+printf "Average: %s s\n" "$tottime"
