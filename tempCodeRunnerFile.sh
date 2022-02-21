@@ -1,1 +1,0 @@
-rsync -aAXH --delete --info=progress2 --exclude="$EXCLUDE" "$BACKUP_SRC" "$BACKUP_DST"

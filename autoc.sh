@@ -2,7 +2,7 @@
 
 SRC=$(echo "$1" | cut -f 1 -d '.')
 
-gcc -Wall -Wextra -pedantic -o $SRC $SRC.c
+gcc -Wall -Wextra -Og -g -o $SRC $SRC.c
 
 if [ -x "$SRC" ] ; then
   ./$SRC
