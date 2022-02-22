@@ -8,4 +8,4 @@ fromhex(){
                        (b<75?0:(b-35)/40)     + 16 ))"
 }
 
-fromhex $1
+fromhex "$1"

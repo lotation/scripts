@@ -1,9 +1,6 @@
 #!/bin/bash
 
-# Exit on any error and undeclared variables
-#set -euxo pipefail
-set -e
-
+set -euo pipefail
 
 # Check if running as root
 if [ "$EUID" -ne 0 ] ; then 
@@ -12,10 +9,10 @@ if [ "$EUID" -ne 0 ] ; then
 fi
 
 
-
 # Functions 
 usage() { 
-    printf "Usage: %s [OPTIONS]\n" "$0" 1>&2
+    printf "Usage: %s [OPTIONS] \n" "$(basename $0)" 1>&2 
+    printf "Get everything ready to work with LFS.\n"
     printf "\tOptions:\n"
     printf "\t-a\t\tRun all operations (mount lfs directories, check ownership, mount vkfs)\n"
     printf "\t-o operation\tDo only this operation\n"
@@ -45,8 +42,12 @@ initialize() {
 }
 
 check_args() {
-    while getopts ":o:a" opt; do
-        case "${opt}" in
+    optstr=":o:ah"
+    while getopts ${optstring} arg; do
+        case "${arg}" in
+            h)
+                usage
+                ;;
             o)
                 # Do only this operation
                 initialize
@@ -61,22 +62,26 @@ check_args() {
                 check_vkfs
                 mount_vkfs
                 ;;
+            :)
+                echo "$0: Must supply an argument to -$OPTARG." >&2
+                exit 3
+                ;;
+            ?)
+                echo "Invalid option: -${OPTARG}." >&2
+                exit 4
+                ;;
             *)
-                usage
+                echo "Unknown error occurred" >&2
+                exit 5
                 ;;
         esac
     done
-    shift $((OPTIND-1))
-
-    if [ -z "$a" ] && [ -z "$o" ] ; then
-        usage
-    fi
+    #shift $((OPTIND-1))
 }
 
 mount_fs() {
     echo "Mounting LFS partitions..."
 
-    #### DOES NOT WORK !!!
     for dir in "${lfs_partitions[@]}" ; do
         # Check that directories exist before attempting the mount
         if [ ! -d "$dir" ] ; then
@@ -153,7 +158,10 @@ mount_vkfs() {
     echo -e "Done.\n"
 }
 
-
+# Check if 0 arguments were given
+if [[ ${#} -eq 0 ]]; then
+   usage
+fi
 
 # Check command-line arguments
 check_args "$@"

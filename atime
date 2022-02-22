@@ -1,14 +1,62 @@
+# Return $command average run time
 #!/bin/bash
+set -euo pipefail
 
-reps=20
-tottime=0
 
-for i in $(seq 1 $reps)
-do
-  time=$( (/usr/bin/time -f %e $1 > /dev/null) 2>&1 )
-  tottime=$(echo $time + $tottime | bc -l)
-  #echo -e "$i) time=$time   total_time=$tottime \n\n"
+function usage {
+    printf "Usage: %s [OPTIONS] COMMAND\n" "$(basename $0)" 1>&2 
+    printf "Return COMMAND average run time.\n"
+    printf "\tOptions:\n"
+    printf "\t-n NUM\t\tRun given command N times (max 100)\n"
+    exit 1
+}
+
+function check_args {
+    optstring=":hn:"
+    while getopts ${optstring} arg; do
+        case "${arg}" in
+            h)
+                usage
+                ;;
+            n)
+                if [[ ${OPTARG} < 0 || ${OPTARG} > 100 ]]; then
+                    echo "$0: arguments $OPTARG accepts an integer between 1 and 100" >&2
+                    exit 2
+                fi
+                REPS="${OPTARG}"
+		        ;;
+            :)
+                echo "$0: Must supply an argument to -$OPTARG." >&2
+                exit 2
+                ;;
+            ?)
+                echo "Invalid option: -${OPTARG}." >&2
+                exit 3
+                ;;
+            *)
+                echo "Unknown error occurred" >&2
+                exit 4
+                ;;
+        esac
+    done
+}
+
+# Check if 0 arguments were given
+if [[ ${#} -eq 0 ]]; then
+   usage
+fi
+
+# Check command-line arguments
+check_args "$@"
+
+# Default repetitions
+REPS=20
+TOT=0
+
+for i in $(seq 1 $REPS); do
+    TIME=$( (/usr/bin/TIME -f %e $1 > /dev/null) 2>&1 )
+    TOT=$(echo $TIME + $TOT | bc -l)
 done 
 
-tottime=$(echo "scale=4; $tottime / $reps" | bc -l)
-printf "Average: %s s\n" "$tottime"
+TOT=$(echo "scale=4; $tottime / $REPS" | bc -l)
+printf "Average: %s seconds\n" "$TOT"
