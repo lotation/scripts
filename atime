@@ -2,13 +2,18 @@
 #!/bin/bash
 set -euo pipefail
 
+# Check if GNU time is installed
+if ! command -v time >/dev/null 2>&1 ; then 
+	echo "GNU time is required, please install it" 1>&2
+	exit 1
+fi
 
 function usage {
     printf "Usage: %s [OPTIONS] COMMAND\n" "$(basename $0)" 1>&2 
     printf "Return COMMAND average run time.\n"
     printf "\tOptions:\n"
     printf "\t-n NUM\t\tRun given command N times (max 100)\n"
-    exit 1
+    exit 2
 }
 
 function check_args {
@@ -21,21 +26,21 @@ function check_args {
             n)
                 if [[ ${OPTARG} < 0 || ${OPTARG} > 100 ]]; then
                     echo "$0: arguments $OPTARG accepts an integer between 1 and 100" >&2
-                    exit 2
+                    exit 3
                 fi
                 REPS="${OPTARG}"
 		        ;;
             :)
                 echo "$0: Must supply an argument to -$OPTARG." >&2
-                exit 2
+                exit 4
                 ;;
             ?)
                 echo "Invalid option: -${OPTARG}." >&2
-                exit 3
+                exit 5
                 ;;
             *)
                 echo "Unknown error occurred" >&2
-                exit 4
+                exit 6
                 ;;
         esac
     done
