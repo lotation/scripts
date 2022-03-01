@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -eo pipefail
 
 # Check if running as root
 if [ "$EUID" -ne 0 ] ; then 
@@ -11,7 +11,7 @@ fi
 
 # Functions 
 usage() { 
-    printf "Usage: %s [OPTIONS] \n" "$(basename $0)" 1>&2 
+    printf "Usage: %s [OPTIONS] \n" "$(basename "$0")" 1>&2 
     printf "Get everything ready to work with LFS.\n"
     printf "\tOptions:\n"
     printf "\t-a\t\tRun all operations (mount lfs directories, check ownership, mount vkfs)\n"
@@ -21,19 +21,19 @@ usage() {
 
 initialize() {
     # Check if LFS variable is set
-    if [ -z "$LFS" ] ; then
+    if [ ! -v "$LFS" ] ; then
         export LFS=/mnt/lfs
         echo -e "Set LFS variable: $LFS\n"
     fi
 
-    lfs_partitions=(
+    partitions=(
         "$LFS"
         "$LFS/boot"
         "$LFS/home"
         "$LFS/usr/src"
     )
 
-    lfs_vkfs=(
+    vkfs=(
         "$LFS/dev"
         "$LFS/proc"
         "$LFS/sys"
@@ -41,9 +41,13 @@ initialize() {
     )
 }
 
+swapify() {
+    swapon "/dev/disk/by-label/LFS-SWAP"
+}
+
 check_args() {
     optstr=":o:ah"
-    while getopts ${optstring} arg; do
+    while getopts ${optstr} arg; do
         case "${arg}" in
             h)
                 usage
@@ -51,6 +55,7 @@ check_args() {
             o)
                 # Do only this operation
                 initialize
+                swapify
                 ${OPTARG}
 		        ;;
             a)
@@ -82,18 +87,18 @@ check_args() {
 mount_fs() {
     echo "Mounting LFS partitions..."
 
-    for dir in "${lfs_partitions[@]}" ; do
+    for DIR in ${partitions[@]}; do
         # Check that directories exist before attempting the mount
-        if [ ! -d "$dir" ] ; then
-            echo "Creating LFS dir $dir"
-            mkdir -p "$dir"
+        if [ ! -d "$DIR" ] ; then
+            echo "Creating LFS dir ${DIR}"
+            mkdir -p "$DIR"
             echo -e "Done.\n"
         fi
         
         # Check that directories are mounted
-        if ! grep -q "$(readlink -f "$dir") " /proc/mounts ; then
-            echo "Mounting $dir on $(get_fsmp "$dir")"
-            mount "$(get_fsmp "$dir")" "$dir"
+        if ! grep -q "$(readlink -f "$DIR") " /proc/mounts ; then
+            echo "Mounting $DIR on $(get_fsmp "$DIR")"
+            mount "$(get_fsmp "$DIR")" "$DIR"
         fi
 
     done 
@@ -103,10 +108,10 @@ mount_fs() {
 
 get_fsmp() {
     case "${1}" in 
-	    "$LFS") 	    echo "/dev/sdb3" ;;
-	    "$LFS/boot")    echo "/dev/sdb1" ;;
-	    "$LFS/home") 	echo "/dev/sdb2" ;;
-	    "$LFS/usr/src") echo "/dev/sdb4" ;;
+	    "$LFS") 	    echo "/dev/disk/by-label/LFS-ROOT" ;;
+	    "$LFS/boot")    echo "/dev/disk/by-label/LFS-BOOT" ;;
+	    "$LFS/home")    echo "/dev/disk/by-label/LFS-HOME" ;;
+	    "$LFS/usr/src") echo "/dev/disk/by-label/LFS-SRC" ;;
 	
 	    *) echo "Unknown Partition" && exit 3 ;;
     esac	
@@ -127,11 +132,11 @@ check_vkfs() {
     echo "Preparing Virtual Kernel File System..."
 
     # Check if LFS subdirs exist
-    for dir in "${lfs_vkfs[@]}" ; do
+    for DIR in ${vkfs[@]}; do
         # Check that directories exist before attempting the mount
-        if [ ! -d "$dir" ] ; then
-            echo "Creating LFS VKFS $dir"
-            mkdir -p "$dir"
+        if [ ! -d "$DIR" ] ; then
+            echo "Creating LFS VKFS $DIR"
+            mkdir -p "$DIR"
             echo -e "Done.\n"
         fi
 
@@ -152,8 +157,8 @@ mount_vkfs() {
     mount -vt sysfs sysfs "$LFS"/sys
     mount -vt tmpfs tmpfs "$LFS"/run
 
-    if [ -h "$LFS/dev/shm" ]; then
-        mkdir -p "$LFS"/"$(readlink $LFS/dev/shm)"
+    if [ -h "$LFS"/dev/shm ]; then
+        mkdir -p "$LFS"/"$(readlink "$LFS"/dev/shm)"
     fi
     echo -e "Done.\n"
 }
