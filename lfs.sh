@@ -43,7 +43,7 @@ initialize() {
 
 check_args() {
     optstr=":o:ah"
-    while getopts ${optstring} arg; do
+    while getopts ${optstr} arg; do
         case "${arg}" in
             h)
                 usage
